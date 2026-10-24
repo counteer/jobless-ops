@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: joblessops
+      POSTGRES_USER: joblessops
+      POSTGRES_PASSWORD: joblessops
+    ports:
+      - "5432:5432"
+    volumes:
+      - joblessops_data:/var/lib/postgresql/data
+
+volumes:
+  joblessops_data:
