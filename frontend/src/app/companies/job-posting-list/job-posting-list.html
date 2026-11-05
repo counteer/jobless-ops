@@ -1,0 +1,29 @@
+@if (loading()) {
+  <p>Loading job postings...</p>
+} @else if (errorMessage()) {
+  <p>{{ errorMessage() }}</p>
+} @else {
+  <ul class="job-postings">
+    @for (jobPosting of jobPostings(); track jobPosting.id) {
+      <li class="job-card">
+        <h3>{{ jobPosting.title }}</h3>
+
+        @if (jobPosting.description) {
+          <p>{{ jobPosting.description }}</p>
+        }
+
+        @if (jobPosting.url) {
+          <a
+            [href]="jobPosting.url"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            More info
+          </a>
+        }
+      </li>
+    } @empty {
+      <li>No job postings found.</li>
+    }
+  </ul>
+}

@@ -1,0 +1,46 @@
+@if (loading()) {
+  <p>Loading companies...</p>
+} @else if (errorMessage()) {
+  <p>{{ errorMessage() }}</p>
+} @else {
+  <div class="dashboard">
+    <section class="companies-panel">
+      <h2>Companies</h2>
+
+      <p>Companies count: {{ companies().length }}</p>
+
+      <ul>
+        @for (company of companies(); track company.id) {
+          <li>
+            <button
+              type="button"
+              (click)="selectedCompanyId.set(company.id)"
+              [class.selected]="selectedCompanyId() === company.id"
+            >
+              {{ company.name }}
+            </button>
+
+           <div class="website-slot">
+                @if (company.website) {
+                    <a [href]="company.website" target="_blank" rel="noopener noreferrer">
+                    website
+                    </a>
+                }
+                </div>
+        } @empty {
+          <li>No companies found.</li>
+        }
+      </ul>
+    </section>
+
+    <section class="job-postings-panel">
+      <h2>Job postings</h2>
+
+      @if (selectedCompanyId(); as companyId) {
+        <app-job-posting-list [companyId]="companyId" />
+      } @else {
+        <p>Select a company to view its job postings.</p>
+      }
+    </section>
+  </div>
+}

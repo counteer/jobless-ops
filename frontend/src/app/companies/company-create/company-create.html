@@ -1,0 +1,24 @@
+<form (ngSubmit)="createCompany()">
+  <div>
+    <label for="name">Company name</label>
+    <input
+      id="name"
+      name="name"
+      type="text"
+      [(ngModel)]="name"
+      required
+    />
+  </div>
+
+  <div>
+    <label for="website">Website (optional)</label>
+    <input
+      id="website"
+      name="website"
+      type="url"
+      [(ngModel)]="website"
+    />
+  </div>
+
+  <button type="submit">Create company</button>
+</form>

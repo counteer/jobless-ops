@@ -1,0 +1,66 @@
+.dashboard {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 24px;
+  padding: 24px;
+}
+
+.companies-panel,
+.job-postings-panel {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  min-width: 0;
+}
+
+.companies-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.companies-panel li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.companies-panel button {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: #ffe4cb;
+  color: var(--text);
+  transition: background-color 0.2s;
+}
+
+.companies-panel button:hover {
+  background-color: var(--primary);
+}
+
+.companies-panel button.selected {
+  background-color: var(--primary-hover);
+  color: white;
+}
+
+.companies-panel a {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+}
+
+.website-slot {
+  width: 76px;
+  flex-shrink: 0;
+}
