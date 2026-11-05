@@ -1,5 +1,7 @@
 package com.joblessops.joblessops.company.application;
 
+import com.joblessops.joblessops.company.api.dto.CompanyResponse;
+import com.joblessops.joblessops.company.api.dto.CreateCompanyRequest;
 import com.joblessops.joblessops.company.api.exceptions.CompanyNotFoundException;
 import com.joblessops.joblessops.company.domain.Company;
 import com.joblessops.joblessops.company.persistence.CompanyRepository;
@@ -12,8 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,13 +30,13 @@ public class CompanyServiceTest {
 
     @Test
     void testSave() {
-        Company company = new Company("Google", "https://google.com");
-        when(companyRepository.save(company)).thenReturn(company);
+        CreateCompanyRequest company = new CreateCompanyRequest("Google", "https://google.com");
+        when(companyRepository.save(any())).thenReturn(company);
 
-        Company result = underTest.save(company);
+        CompanyResponse result = underTest.save(company);
 
-        assertSame(company, result);
-        verify(companyRepository).save(company);
+        assertEquals(company.name(), result.name());
+        verify(companyRepository).save(any());
     }
 
     @Test

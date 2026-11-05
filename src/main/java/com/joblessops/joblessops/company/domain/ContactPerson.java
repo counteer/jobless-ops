@@ -15,9 +15,9 @@ public class ContactPerson {
     private String name;
     private String email;
     private String phone;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "company_id")
-
     private Company company;
     public ContactPerson() {}
     public ContactPerson(@NotBlank String name, String email, String phone, String title,  Company company) {

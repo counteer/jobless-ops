@@ -13,6 +13,8 @@ public class Company {
     @Id
     @GeneratedValue
     private UUID id;
+    private String name;
+    private String website;
 
     public Company() {
 
@@ -23,7 +25,6 @@ public class Company {
         this.website = website;
     }
 
-
     public void setId(UUID id) {
         this.id = id;
     }
@@ -32,8 +33,6 @@ public class Company {
         return id;
     }
 
-    private String name;
-
     public String getName() {
         return name;
     }
@@ -41,8 +40,6 @@ public class Company {
     public void setName(String name) {
         this.name = name;
     }
-
-    private String website;
 
     public String getWebsite() {
         return website;

@@ -1,5 +1,6 @@
 package com.joblessops.joblessops.company.api;
 
+import com.joblessops.joblessops.company.api.dto.CompanyResponse;
 import com.joblessops.joblessops.company.api.exceptions.CompanyNotFoundException;
 import com.joblessops.joblessops.company.application.CompanyService;
 import com.joblessops.joblessops.company.domain.Company;
@@ -75,10 +76,8 @@ class CompanyControllerTest {
 
     @Test
     void shouldSaveCompany() throws Exception {
-
         UUID id = UUID.randomUUID();
-        Company company = new Company("Google", "https://google.com");
-        company.setId(id);
+        CompanyResponse company = new CompanyResponse(id, "Google", "https://google.com");
         when(companyService.save(any())).thenReturn(company);
 
         mockMvc.perform(post("/api/companies")

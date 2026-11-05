@@ -81,7 +81,7 @@ public class ContactPersonServiceTest {
     @Test
     public void findByCompanyIdCompanyDoesNotExistTest() {
         UUID companyId = UUID.randomUUID();
-        doThrow(new CompanyNotFoundException("Company not found"))
+        doThrow(new CompanyNotFoundException("Company found"))
                 .when(companyService).ensureExists(companyId);
         assertThrows(CompanyNotFoundException.class, () -> underTest.findByCompanyId(companyId));
     }

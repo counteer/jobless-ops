@@ -24,8 +24,7 @@ public class CompanyController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CompanyResponse save(@RequestBody @Valid CreateCompanyRequest company) {
-        Company savedCompany = companyService.save(new Company(company.name(), company.website()));
-        return new CompanyResponse(savedCompany.getId(), savedCompany.getName(), savedCompany.getWebsite());
+        return companyService.save(company);
     }
 
     @GetMapping
