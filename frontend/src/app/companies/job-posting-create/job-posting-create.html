@@ -1,0 +1,47 @@
+@if (errorMessage()) {
+  <p class="error-message">{{ errorMessage() }}</p>
+}
+<form (ngSubmit)="createJobPosting()" class="job-posting-form">
+    <div class="form-field">
+    <label for="title">Job title</label>
+    <input
+      id="title"
+      name="title"
+      type="text"
+      [(ngModel)]="title"
+      placeholder="Enter job posting title"
+      required
+    />
+  </div>
+  <div class="form-field">
+    <label for="url">Website (optional)</label>
+    <input
+      id="url"
+      name="url"
+      type="text"
+      [(ngModel)]="url"
+      placeholder="https://example.com"
+    />
+  </div>
+
+  <div class="form-field">
+    <label for="description">Description (optional)</label>
+    <input
+      id="description"
+      name="description"
+      type="text"
+      [(ngModel)]="description"
+      placeholder="description"
+    />
+  </div>
+
+  @if (errorMessage()) {
+    <p class="error-message">{{ errorMessage() }}</p>
+  }
+
+  <div class="form-actions">
+    <button type="submit" [disabled]="loading()">
+      {{ loading() ? 'Creating...' : 'Create job posting' }}
+    </button>
+  </div>
+</form>

@@ -1,46 +1,84 @@
 @if (loading()) {
-  <p>Loading companies...</p>
+<p>Loading companies...</p>
 } @else if (errorMessage()) {
-  <p>{{ errorMessage() }}</p>
+<p>{{ errorMessage() }}</p>
 } @else {
-  <div class="dashboard">
+<div class="dashboard">
     <section class="companies-panel">
-      <h2>Companies</h2>
+        <div class="companies-header">
+            <h2>Companies</h2>
 
-      <p>Companies count: {{ companies().length }}</p>
-
-      <ul>
-        @for (company of companies(); track company.id) {
-          <li>
-            <button
-              type="button"
-              (click)="selectedCompanyId.set(company.id)"
-              [class.selected]="selectedCompanyId() === company.id"
-            >
-              {{ company.name }}
+            <button type="button" class="new-company-button" aria-label="Create company" title="Create company"
+                (click)="companyDialog.showModal()">
+                +
             </button>
+        </div>
 
-           <div class="website-slot">
-                @if (company.website) {
-                    <a [href]="company.website" target="_blank" rel="noopener noreferrer">
-                    website
-                    </a>
+        <dialog #companyDialog class="company-dialog">
+            <div class="dialog-header">
+                <h2>New company</h2>
+                <button type="button" (click)="companyDialog.close()">
+                    ✕
+                </button>
+            </div>
+
+
+            <app-company-create (companyCreated)="onCompanyCreated($event); companyDialog.close()" />
+        </dialog>
+        <dialog #jobPostingDialog class="job-posting-dialog">
+            <div class="dialog-header">
+                <h2>
+                    @if (companies().find(company => company.id === selectedCompanyId()); as company) {
+                    New job posting for {{ company.name }}
+                    }
+                </h2> <button type="button" (click)="jobPostingDialog.close()">✕</button>
+            </div>
+
+            @if (selectedCompanyId(); as companyId) {
+            <app-job-posting-create [companyId]="companyId" (jobPostingCreated)="jobPostingDialog.close()" />
+            }
+        </dialog>
+
+        <div class="companies-scroll">
+
+            <ul>
+                @for (company of companies(); track company.id) {
+                <li>
+                    <button type="button" (click)="selectedCompanyId.set(company.id)"
+                        (click)="selectedCompanyId.set(company.id); selectedCompanyName.set(company.name)">
+                        {{ company.name }}
+                    </button>
+
+                    <div class="website-slot">
+                        @if (company.website) {
+                        <a [href]="company.website" target="_blank" rel="noopener noreferrer">
+                            website
+                        </a>
+                        }
+                    </div>
+                    } @empty {
+                <li>No companies found.</li>
                 }
-                </div>
-        } @empty {
-          <li>No companies found.</li>
-        }
-      </ul>
+            </ul>
+        </div>
     </section>
 
     <section class="job-postings-panel">
-      <h2>Job postings</h2>
+        <div class="job-postings-header">
+            <h2>Job postings</h2>
 
-      @if (selectedCompanyId(); as companyId) {
+            @if (selectedCompanyId()) {
+            <button type="button" class="new-job-posting-button" (click)="jobPostingDialog.showModal()">
+                +
+            </button>
+            }
+        </div>
+
+        @if (selectedCompanyId(); as companyId) {
         <app-job-posting-list [companyId]="companyId" />
-      } @else {
+        } @else {
         <p>Select a company to view its job postings.</p>
-      }
+        }
     </section>
-  </div>
+</div>
 }

@@ -1,3 +1,5 @@
+
+
 @if (loading()) {
   <p>Loading job postings...</p>
 } @else if (errorMessage()) {
@@ -7,7 +9,6 @@
     @for (jobPosting of jobPostings(); track jobPosting.id) {
       <li class="job-card">
         <h3>{{ jobPosting.title }}</h3>
-
         @if (jobPosting.description) {
           <p>{{ jobPosting.description }}</p>
         }
@@ -26,4 +27,5 @@
       <li>No job postings found.</li>
     }
   </ul>
+     
 }

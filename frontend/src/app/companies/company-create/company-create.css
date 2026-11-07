@@ -1,0 +1,72 @@
+.company-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.form-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background-color: #fff8f0;
+  color: var(--text);
+  font: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-field input:focus {
+  border-color: var(--primary-hover);
+  box-shadow: 0 0 0 3px rgba(245, 161, 91, 0.2);
+}
+
+.form-field input::placeholder {
+  color: #b98a6b;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.form-actions button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  background-color: var(--primary);
+  color: var(--text);
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.form-actions button:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+  color: white;
+}
+
+.form-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background-color: #fff0eb;
+  color: #b44332;
+  font-size: 14px;
+}

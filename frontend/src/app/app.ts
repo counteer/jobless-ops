@@ -3,7 +3,7 @@ import { CompanyList } from './companies/company-list/company-list';
 import { CompanyCreate } from './companies/company-create/company-create';
 
 @Component({
-  imports: [CompanyList, CompanyCreate],
+  imports: [CompanyList],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',

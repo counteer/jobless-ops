@@ -42,7 +42,10 @@ constructor() {
         console.error('Nem sikerült lekérni az álláshirdetéseket:', error);
       }
     });
+    
   }
+
+  
   companyId = input.required<string>();
 
   private jobpostingApi = inject(JobpostingApi);
@@ -51,4 +54,12 @@ constructor() {
 
   loading = signal(false);
   errorMessage = signal<string | null>(null);
+
+  onJobPostingCreated(jobposting: JobPosting){
+  
+    this.jobPostings.update(jobPostingsOld=>[...jobPostingsOld, jobposting])
+  }
+
+  
+
 }
