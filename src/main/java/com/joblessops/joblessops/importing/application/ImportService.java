@@ -6,15 +6,16 @@ import com.joblessops.joblessops.company.api.dto.CreateCompanyRequest;
 import com.joblessops.joblessops.importing.api.ImportCompanyRequest;
 import com.joblessops.joblessops.importing.api.ImportJobPostingRequest;
 import com.joblessops.joblessops.importing.api.ImportRequest;
-import com.joblessops.joblessops.jobapplication.api.JobPostingPersist;
+import com.joblessops.joblessops.jobapplication.api.ApplicationStatusChange;
 import com.joblessops.joblessops.jobapplication.api.JobApplicationPersist;
-import com.joblessops.joblessops.jobapplication.domain.JobPosting;
+import com.joblessops.joblessops.jobapplication.api.JobPostingPersist;
 import com.joblessops.joblessops.jobapplication.api.dto.CreateJobPostingRequest;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.joblessops.joblessops.jobapplication.domain.JobPosting;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.joblessops.joblessops.importing.api.exceptions.InvalidImportException;
 
 @Service
 public class ImportService {
@@ -43,11 +44,10 @@ public class ImportService {
                     var history = application.statusHistory();
                     if (application.statusCode() != null) {
                         if (!history.isEmpty()) {
-                            throw new org.springframework.web.server.ResponseStatusException(
-                                    org.springframework.http.HttpStatus.BAD_REQUEST,
+                            throw new InvalidImportException(
                                     "Provide either statusCode or statusHistory, not both");
                         }
-                        history = List.of(new com.joblessops.joblessops.jobapplication.api.ApplicationStatusChange(
+                        history = List.of(new ApplicationStatusChange(
                                 application.statusCode(), application.appliedAt().atStartOfDay()));
                     }
                     jobApplicationPersist.save(posting, application.notes(), application.appliedAt(), history);

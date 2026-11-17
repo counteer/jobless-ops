@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
+import com.joblessops.joblessops.jobapplication.exception.UnknownApplicationStatusException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -54,10 +54,10 @@ class JobApplicationServiceTest {
         var date = LocalDate.of(2026, 11, 17);
         when(statusRepository.findByCode("APPLIED")).thenReturn(Optional.of(new ApplicationStatus()));
         when(statusRepository.findByCode("UNKNOWN")).thenReturn(Optional.empty());
-        var error = assertThrows(ResponseStatusException.class, () -> service.save(new JobPosting(), null, date,
+        var error = assertThrows(UnknownApplicationStatusException.class, () -> service.save(new JobPosting(), null, date,
                 List.of(new ApplicationStatusChange("APPLIED", date.atStartOfDay()),
                         new ApplicationStatusChange("UNKNOWN", date.atTime(12, 0)))));
-        assertEquals(400, error.getStatusCode().value());
+        assertEquals("Unknown application status: UNKNOWN", error.getMessage());
         verifyNoInteractions(repository, historyRepository);
     }
 

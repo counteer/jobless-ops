@@ -1,26 +1,29 @@
 package com.joblessops.joblessops.importing.application;
 
-import com.joblessops.joblessops.jobapplication.api.JobApplicationPersist;
-import com.joblessops.joblessops.jobapplication.domain.JobPosting;
-import com.joblessops.joblessops.importing.api.ImportJobApplicationRequest;
-import java.time.LocalDate;
 import com.joblessops.joblessops.company.api.CompanyPersist;
 import com.joblessops.joblessops.company.api.dto.CompanyResponse;
 import com.joblessops.joblessops.company.api.dto.CreateCompanyRequest;
 import com.joblessops.joblessops.importing.api.ImportCompanyRequest;
+import com.joblessops.joblessops.importing.api.ImportJobApplicationRequest;
 import com.joblessops.joblessops.importing.api.ImportJobPostingRequest;
 import com.joblessops.joblessops.importing.api.ImportRequest;
+import com.joblessops.joblessops.jobapplication.api.ApplicationStatusChange;
+import com.joblessops.joblessops.jobapplication.api.JobApplicationPersist;
 import com.joblessops.joblessops.jobapplication.api.JobPostingPersist;
+import com.joblessops.joblessops.jobapplication.domain.JobPosting;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.joblessops.joblessops.importing.api.exceptions.InvalidImportException;
 
-import java.util.List;
-import java.util.UUID;
-
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -155,7 +158,7 @@ public class ImportServiceTest {
     @Test
     void acceptsPostingsWithoutApplications() {
         var posting = new ImportJobPostingRequest("Title", null, null, null);
-        org.junit.jupiter.api.Assertions.assertTrue(posting.jobApplications().isEmpty());
+        assertTrue(posting.jobApplications().isEmpty());
     }
 
     @Test
@@ -167,13 +170,13 @@ public class ImportServiceTest {
         when(jobPostingPersist.save(any())).thenReturn(posting);
         underTest.importCompanies(applicationRequest(application));
         verify(jobApplicationPersist).save(posting, null, date, List.of(
-                new com.joblessops.joblessops.jobapplication.api.ApplicationStatusChange("APPLIED", date.atStartOfDay())));
+                new ApplicationStatusChange("APPLIED", date.atStartOfDay())));
     }
 
     @Test
     void passesThroughExplicitStatusHistory() {
         var date = LocalDate.of(2026, 11, 17);
-        var history = List.of(new com.joblessops.joblessops.jobapplication.api.ApplicationStatusChange(
+        var history = List.of(new ApplicationStatusChange(
                 "OFFER", date.atTime(14, 30)));
         var application = new ImportJobApplicationRequest("Notes", date, null, history);
         var posting = new JobPosting();
@@ -187,9 +190,9 @@ public class ImportServiceTest {
     void rejectsAmbiguousStatusAndHistory() {
         var date = LocalDate.of(2026, 11, 17);
         var application = new ImportJobApplicationRequest(null, date, "APPLIED", List.of(
-                new com.joblessops.joblessops.jobapplication.api.ApplicationStatusChange("OFFER", date.atStartOfDay())));
+                new ApplicationStatusChange("OFFER", date.atStartOfDay())));
         when(companyPersist.save(any())).thenReturn(new CompanyResponse(UUID.randomUUID(), "Name", null));
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
+        assertThrows(InvalidImportException.class,
                 () -> underTest.importCompanies(applicationRequest(application)));
         verifyNoInteractions(jobApplicationPersist);
     }

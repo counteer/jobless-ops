@@ -13,8 +13,7 @@ import com.joblessops.joblessops.jobapplication.domain.ApplicationStatusHistory;
 import com.joblessops.joblessops.jobapplication.persistence.ApplicationStatusRepository;
 import com.joblessops.joblessops.jobapplication.persistence.ApplicationStatusHistoryRepository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
+import com.joblessops.joblessops.jobapplication.exception.UnknownApplicationStatusException;
 
 @Service
 public class JobApplicationService implements JobApplicationPersist {
@@ -42,7 +41,7 @@ public class JobApplicationService implements JobApplicationPersist {
         // Resolve all codes before writing any application or history records.
         var history = statusHistory.stream().map(change -> {
             var status = statusRepository.findByCode(change.statusCode()).orElseThrow(() ->
-                    new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    new UnknownApplicationStatusException(
                             "Unknown application status: " + change.statusCode()));
             var entry = new ApplicationStatusHistory();
             entry.setStatus(status);
