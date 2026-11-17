@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,6 +28,13 @@ public class CompanyService implements CompanyLookup, CompanyPersist {
     public CompanyResponse save(CreateCompanyRequest company) {
         Company persisted = companyRepository.save(new Company(company.name(), company.website()));
         return new CompanyResponse(persisted.getId(), persisted.getName(), persisted.getWebsite());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<CompanyResponse> findByName(String name) {
+        return companyRepository.findByName(name)
+                .map(company -> new CompanyResponse(company.getId(), company.getName(), company.getWebsite()));
     }
 
     public Company get(UUID id) {

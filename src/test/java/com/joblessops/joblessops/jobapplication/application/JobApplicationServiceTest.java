@@ -2,20 +2,24 @@ package com.joblessops.joblessops.jobapplication.application;
 
 import com.joblessops.joblessops.jobapplication.api.ApplicationStatusChange;
 import com.joblessops.joblessops.jobapplication.domain.*;
+import com.joblessops.joblessops.jobapplication.exception.JobApplicationNotFoundException;
+import com.joblessops.joblessops.jobapplication.exception.UnknownApplicationStatusException;
 import com.joblessops.joblessops.jobapplication.persistence.*;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.joblessops.joblessops.jobapplication.exception.UnknownApplicationStatusException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class JobApplicationServiceTest {
+    @Mock JobPostingRepository postingRepository;
     @Mock JobApplicationRepository repository;
     @Mock ApplicationStatusRepository statusRepository;
     @Mock ApplicationStatusHistoryRepository historyRepository;
@@ -66,5 +70,35 @@ class JobApplicationServiceTest {
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         assertNotNull(service.save(new JobPosting(), null, LocalDate.of(2026, 11, 17), List.of()));
         verifyNoInteractions(statusRepository, historyRepository);
+    }
+
+    @Test
+    void missingApplicationIsReportedBeforeChangingStatus() {
+        var id = UUID.randomUUID();
+        when(repository.findById(id)).thenReturn(Optional.empty());
+        assertThrows(JobApplicationNotFoundException.class,
+                () -> service.changeStatus(id, new ApplicationStatusChange("APPLIED", LocalDate.of(2026, 11, 17).atStartOfDay())));
+        verifyNoInteractions(statusRepository, historyRepository);
+    }
+
+    @Test
+    void currentStatusComesFromLatestHistoryEntry() {
+        var id = UUID.randomUUID();
+        var application = new JobApplication();
+        var posting = new JobPosting();
+        posting.setId(UUID.randomUUID());
+        application.setId(id);
+        application.setJobPosting(posting);
+        var applied = new ApplicationStatus();
+        applied.setCode("APPLIED");
+        var offer = new ApplicationStatus();
+        offer.setCode("OFFER");
+        var first = new ApplicationStatusHistory();
+        first.setStatus(applied);
+        var latest = new ApplicationStatusHistory();
+        latest.setStatus(offer);
+        when(repository.findById(id)).thenReturn(Optional.of(application));
+        when(historyRepository.findByJobApplicationIdOrderByChangedAtAsc(id)).thenReturn(List.of(first, latest));
+        assertEquals("OFFER", service.get(id).statusCode());
     }
 }

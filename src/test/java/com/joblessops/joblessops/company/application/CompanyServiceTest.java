@@ -31,7 +31,7 @@ public class CompanyServiceTest {
     @Test
     void testSave() {
         CreateCompanyRequest company = new CreateCompanyRequest("Google", "https://google.com");
-        when(companyRepository.save(any())).thenReturn(company);
+        when(companyRepository.save(any())).thenReturn(new Company(company.name(), company.website()));
 
         CompanyResponse result = underTest.save(company);
 
@@ -60,5 +60,22 @@ public class CompanyServiceTest {
 
         verify(companyRepository).findById(id);
 
+    }
+
+    @Test
+    void findsExistingCompanyByName() {
+        var company = new Company("Google", "https://google.com");
+        var id = UUID.randomUUID();
+        company.setId(id);
+        when(companyRepository.findByName("Google")).thenReturn(Optional.of(company));
+
+        assertEquals(Optional.of(new CompanyResponse(id, "Google", "https://google.com")),
+                underTest.findByName("Google"));
+    }
+
+    @Test
+    void returnsEmptyWhenCompanyNameDoesNotExist() {
+        when(companyRepository.findByName("Missing")).thenReturn(Optional.empty());
+        assertTrue(underTest.findByName("Missing").isEmpty());
     }
 }

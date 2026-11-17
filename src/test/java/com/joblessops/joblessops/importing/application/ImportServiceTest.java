@@ -1,6 +1,8 @@
 package com.joblessops.joblessops.importing.application;
 
 import com.joblessops.joblessops.company.api.CompanyPersist;
+import com.joblessops.joblessops.company.api.CompanyLookup;
+import java.util.Optional;
 import com.joblessops.joblessops.company.api.dto.CompanyResponse;
 import com.joblessops.joblessops.company.api.dto.CreateCompanyRequest;
 import com.joblessops.joblessops.importing.api.ImportCompanyRequest;
@@ -32,6 +34,9 @@ public class ImportServiceTest {
 
     @Mock
     CompanyPersist companyPersist;
+
+    @Mock
+    CompanyLookup companyLookup;
 
     @Mock
     JobPostingPersist jobPostingPersist;
@@ -195,6 +200,34 @@ public class ImportServiceTest {
         assertThrows(InvalidImportException.class,
                 () -> underTest.importCompanies(applicationRequest(application)));
         verifyNoInteractions(jobApplicationPersist);
+    }
+
+    @Test
+    void reusesExistingCompanyIdForImportedPostings() {
+        var existingId = UUID.randomUUID();
+        when(companyLookup.findByName("Name")).thenReturn(Optional.of(
+                new CompanyResponse(existingId, "Name", "https://existing.example")));
+        var posting = new ImportJobPostingRequest("Title", null, null);
+        var company = new ImportCompanyRequest("Name", "https://imported.example", List.of(posting));
+
+        underTest.importCompanies(new ImportRequest(List.of(company, company)));
+
+        verifyNoInteractions(companyPersist);
+        verify(jobPostingPersist, times(2)).save(argThat(request -> request.companyId().equals(existingId)));
+    }
+
+    @Test
+    void createsCompanyWhenNameDoesNotExist() {
+        var newId = UUID.randomUUID();
+        when(companyLookup.findByName("New Company")).thenReturn(Optional.empty());
+        when(companyPersist.save(any())).thenReturn(new CompanyResponse(newId, "New Company", null));
+        var company = new ImportCompanyRequest("New Company", null,
+                List.of(new ImportJobPostingRequest("Title", null, null)));
+
+        underTest.importCompanies(new ImportRequest(List.of(company)));
+
+        verify(companyPersist).save(new CreateCompanyRequest("New Company", null));
+        verify(jobPostingPersist).save(argThat(request -> request.companyId().equals(newId)));
     }
 
     private ImportRequest applicationRequest(ImportJobApplicationRequest application) {

@@ -1,6 +1,7 @@
 package com.joblessops.joblessops.importing.application;
 
 import com.joblessops.joblessops.company.api.CompanyPersist;
+import com.joblessops.joblessops.company.api.CompanyLookup;
 import com.joblessops.joblessops.company.api.dto.CompanyResponse;
 import com.joblessops.joblessops.company.api.dto.CreateCompanyRequest;
 import com.joblessops.joblessops.importing.api.ImportCompanyRequest;
@@ -21,13 +22,15 @@ import com.joblessops.joblessops.importing.api.exceptions.InvalidImportException
 public class ImportService {
 
     private final CompanyPersist companyPersist;
+    private final CompanyLookup companyLookup;
 
     private final JobPostingPersist jobPostingPersist;
     private final JobApplicationPersist jobApplicationPersist;
 
     public ImportService(CompanyPersist companyPersist, JobPostingPersist jobPostingPersist,
-                         JobApplicationPersist jobApplicationPersist) {
+                         JobApplicationPersist jobApplicationPersist, CompanyLookup companyLookup) {
         this.companyPersist = companyPersist;
+        this.companyLookup = companyLookup;
         this.jobPostingPersist = jobPostingPersist;
         this.jobApplicationPersist = jobApplicationPersist;
     }
@@ -36,10 +39,11 @@ public class ImportService {
     public void importCompanies(ImportRequest request) {
         List<ImportCompanyRequest> companies = request.companies();
         for (ImportCompanyRequest company : companies) {
-            CompanyResponse save = companyPersist.save(convertToCompany(company));
+            CompanyResponse savedCompany = companyLookup.findByName(company.name())
+                    .orElseGet(() -> companyPersist.save(convertToCompany(company)));
             List<ImportJobPostingRequest> importJobPostingRequests = company.jobPostings();
             for (ImportJobPostingRequest jobPostingRequest : importJobPostingRequests) {
-                JobPosting posting = jobPostingPersist.save(convert(save.id(), jobPostingRequest));
+                JobPosting posting = jobPostingPersist.save(convert(savedCompany.id(), jobPostingRequest));
                 for (var application : jobPostingRequest.jobApplications()) {
                     var history = application.statusHistory();
                     if (application.statusCode() != null) {
