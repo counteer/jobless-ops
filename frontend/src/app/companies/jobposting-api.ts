@@ -15,7 +15,7 @@ export class JobpostingApi {
   }
 
   createJobPosting(request: CreateJobPostingRequest): Observable<JobPosting> {
-    return this.http.post<JobPosting>('/api/companies/${companyId}/job-postings', request);
+    return this.http.post<JobPosting>('/api/job-postings', request);
   }
 
 }

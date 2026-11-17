@@ -25,7 +25,8 @@
 
             <app-company-create (companyCreated)="onCompanyCreated($event); companyDialog.close()" />
         </dialog>
-        <dialog #jobPostingDialog class="job-posting-dialog">
+        
+        <dialog #jobPostingDialog class="job-posting-dialog" (close)="onJobPostingDialogClosed()" oncre>
             <div class="dialog-header">
                 <h2>
                     @if (companies().find(company => company.id === selectedCompanyId()); as company) {
@@ -35,7 +36,7 @@
             </div>
 
             @if (selectedCompanyId(); as companyId) {
-            <app-job-posting-create [companyId]="companyId" (jobPostingCreated)="jobPostingDialog.close()" />
+            <app-job-posting-create (jobPostingCreated)="onJobPostingCreated($event); jobPostingDialog.close()" />
             }
         </dialog>
 
@@ -68,6 +69,9 @@
             <h2>Job postings</h2>
 
             @if (selectedCompanyId()) {
+               <span class="selected-company-name">
+                {{ selectedCompanyName() }}
+             </span>
             <button type="button" class="new-job-posting-button" (click)="jobPostingDialog.showModal()">
                 +
             </button>

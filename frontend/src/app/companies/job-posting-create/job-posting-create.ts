@@ -22,7 +22,7 @@ export class JobPostingCreate {
   errorMessage = signal<string | null>(null);
   loading = signal(false);
 
-  
+
   createJobPosting(): void {
     if (this.loading()) {
       return;
@@ -56,6 +56,13 @@ export class JobPostingCreate {
         }
       });
 
+  }
+
+  resetForm(): void {
+    this.title = '';
+    this.url = '';
+    this.description = '';
+    this.errorMessage.set(null);
   }
 
 

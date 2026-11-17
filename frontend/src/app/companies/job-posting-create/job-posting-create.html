@@ -1,7 +1,7 @@
 @if (errorMessage()) {
   <p class="error-message">{{ errorMessage() }}</p>
 }
-<form (ngSubmit)="createJobPosting()" class="job-posting-form">
+<form (ngSubmit)="createJobPosting()" class="job-posting-form" >
     <div class="form-field">
     <label for="title">Job title</label>
     <input
@@ -34,10 +34,6 @@
       placeholder="description"
     />
   </div>
-
-  @if (errorMessage()) {
-    <p class="error-message">{{ errorMessage() }}</p>
-  }
 
   <div class="form-actions">
     <button type="submit" [disabled]="loading()">

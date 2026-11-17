@@ -13,39 +13,39 @@ import { catchError, finalize, of, switchMap } from 'rxjs';
 
 export class JobPostingList {
 
-constructor() {
-  toObservable(this.companyId)
-    .pipe(
+  constructor() {
+    toObservable(this.companyId)
+      .pipe(
         switchMap(companyId => {
-        this.loading.set(true);
-        this.errorMessage.set(null);
-        this.jobPostings.set([]);
+          this.loading.set(true);
+          this.errorMessage.set(null);
+          this.jobPostings.set([]);
 
-      return this.jobpostingApi.getJobPostings(companyId).pipe(
-        catchError(error => {
-          console.error('Failed to load job postings:', error);
-          this.errorMessage.set('Failed to load job postings.');
-          return of([] as JobPosting[]);
+          return this.jobpostingApi.getJobPostings(companyId).pipe(
+            catchError(error => {
+              console.error('Failed to load job postings:', error);
+              this.errorMessage.set('Failed to load job postings.');
+              return of([] as JobPosting[]);
+            }),
+            finalize(() => {
+              this.loading.set(false);
+            })
+          );
         }),
-        finalize(() => {
-          this.loading.set(false);
-        })
-      );
-    }),
-    takeUntilDestroyed()
-    )
-    .subscribe({
-      next: (jobPostings) => {
-        this.jobPostings.set(jobPostings);
-      },
-      error: (error) => {
-        console.error('Nem sikerült lekérni az álláshirdetéseket:', error);
-      }
-    });
-    
+        takeUntilDestroyed()
+      )
+      .subscribe({
+        next: (jobPostings) => {
+          this.jobPostings.set(jobPostings);
+        },
+        error: (error) => {
+          console.error('Nem sikerült lekérni az álláshirdetéseket:', error);
+        }
+      });
+
   }
 
-  
+
   companyId = input.required<string>();
 
   private jobpostingApi = inject(JobpostingApi);
@@ -55,11 +55,8 @@ constructor() {
   loading = signal(false);
   errorMessage = signal<string | null>(null);
 
-  onJobPostingCreated(jobposting: JobPosting){
-  
-    this.jobPostings.update(jobPostingsOld=>[...jobPostingsOld, jobposting])
+  onJobPostingCreated(jobposting: JobPosting) {
+    this.jobPostings.update(jobPostingsOld => [...jobPostingsOld, jobposting])
   }
-
-  
 
 }

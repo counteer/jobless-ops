@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
 import { CompanyApi } from '../company-api';
 import { Company } from '../company';
 import { CompanyCreate } from '../company-create/company-create';
@@ -22,6 +22,13 @@ export class CompanyList implements OnInit {
   showCreateForm = signal(false);
   jobPostingDialog: any;
 
+  jobPostingForm = viewChild(JobPostingCreate);
+
+ jobPostingList = viewChild(JobPostingList);
+
+  onJobPostingCreated(jobPosting: JobPosting): void {
+     this.jobPostingList()?.onJobPostingCreated(jobPosting);
+ }
   ngOnInit(): void {
     this.loadCompanies();
   }
