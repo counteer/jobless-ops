@@ -1,5 +1,9 @@
 package com.joblessops.joblessops.importing.application;
 
+import com.joblessops.joblessops.jobapplication.api.JobApplicationPersist;
+import com.joblessops.joblessops.jobapplication.domain.JobPosting;
+import com.joblessops.joblessops.importing.api.ImportJobApplicationRequest;
+import java.time.LocalDate;
 import com.joblessops.joblessops.company.api.CompanyPersist;
 import com.joblessops.joblessops.company.api.dto.CompanyResponse;
 import com.joblessops.joblessops.company.api.dto.CreateCompanyRequest;
@@ -28,6 +32,9 @@ public class ImportServiceTest {
 
     @Mock
     JobPostingPersist jobPostingPersist;
+
+    @Mock
+    JobApplicationPersist jobApplicationPersist;
 
     @InjectMocks
     ImportService underTest;
@@ -124,6 +131,72 @@ public class ImportServiceTest {
 
         verifyNoMoreInteractions(companyPersist, jobPostingPersist);
 
+    }
+
+    @Test
+    void importsApplicationsForTheirSavedPostings() {
+        var first = new JobPosting();
+        var second = new JobPosting();
+        var date = LocalDate.of(2026, 11, 17);
+        var application = new ImportJobApplicationRequest("Follow up", date);
+        var request = new ImportRequest(List.of(new ImportCompanyRequest("NAME", "WEBSITE", List.of(
+                new ImportJobPostingRequest("First", null, null, List.of(application, application)),
+                new ImportJobPostingRequest("Second", null, null, List.of(application))))));
+        when(companyPersist.save(any())).thenReturn(new CompanyResponse(UUID.randomUUID(), "NAME", "WEBSITE"));
+        when(jobPostingPersist.save(any())).thenReturn(first, second);
+
+        underTest.importCompanies(request);
+
+        verify(jobApplicationPersist, times(2)).save(first, "Follow up", date, List.of());
+        verify(jobApplicationPersist).save(second, "Follow up", date, List.of());
+        verifyNoMoreInteractions(jobApplicationPersist);
+    }
+
+    @Test
+    void acceptsPostingsWithoutApplications() {
+        var posting = new ImportJobPostingRequest("Title", null, null, null);
+        org.junit.jupiter.api.Assertions.assertTrue(posting.jobApplications().isEmpty());
+    }
+
+    @Test
+    void importsStatusCodeAtStartOfApplicationDate() {
+        var date = LocalDate.of(2026, 11, 17);
+        var application = new ImportJobApplicationRequest(null, date, "APPLIED", null);
+        var posting = new JobPosting();
+        when(companyPersist.save(any())).thenReturn(new CompanyResponse(UUID.randomUUID(), "Name", null));
+        when(jobPostingPersist.save(any())).thenReturn(posting);
+        underTest.importCompanies(applicationRequest(application));
+        verify(jobApplicationPersist).save(posting, null, date, List.of(
+                new com.joblessops.joblessops.jobapplication.api.ApplicationStatusChange("APPLIED", date.atStartOfDay())));
+    }
+
+    @Test
+    void passesThroughExplicitStatusHistory() {
+        var date = LocalDate.of(2026, 11, 17);
+        var history = List.of(new com.joblessops.joblessops.jobapplication.api.ApplicationStatusChange(
+                "OFFER", date.atTime(14, 30)));
+        var application = new ImportJobApplicationRequest("Notes", date, null, history);
+        var posting = new JobPosting();
+        when(companyPersist.save(any())).thenReturn(new CompanyResponse(UUID.randomUUID(), "Name", null));
+        when(jobPostingPersist.save(any())).thenReturn(posting);
+        underTest.importCompanies(applicationRequest(application));
+        verify(jobApplicationPersist).save(posting, "Notes", date, history);
+    }
+
+    @Test
+    void rejectsAmbiguousStatusAndHistory() {
+        var date = LocalDate.of(2026, 11, 17);
+        var application = new ImportJobApplicationRequest(null, date, "APPLIED", List.of(
+                new com.joblessops.joblessops.jobapplication.api.ApplicationStatusChange("OFFER", date.atStartOfDay())));
+        when(companyPersist.save(any())).thenReturn(new CompanyResponse(UUID.randomUUID(), "Name", null));
+        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> underTest.importCompanies(applicationRequest(application)));
+        verifyNoInteractions(jobApplicationPersist);
+    }
+
+    private ImportRequest applicationRequest(ImportJobApplicationRequest application) {
+        return new ImportRequest(List.of(new ImportCompanyRequest("Name", null,
+                List.of(new ImportJobPostingRequest("Title", null, null, List.of(application))))));
     }
 
     private static @NonNull ImportRequest getRequestList() {

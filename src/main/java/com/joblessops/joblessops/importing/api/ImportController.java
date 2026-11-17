@@ -1,5 +1,7 @@
 package com.joblessops.joblessops.importing.api;
 
+import jakarta.validation.Valid;
+
 import com.joblessops.joblessops.importing.application.ImportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +21,7 @@ public class ImportController {
     }
 
     @PostMapping
-    public void importCompanies(@RequestBody ImportRequest request){
+    public void importCompanies(@Valid @RequestBody ImportRequest request){
         System.out.println(request);
         System.out.println(request.companies().size());
         importService.importCompanies(request);

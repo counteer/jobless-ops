@@ -1,7 +1,8 @@
 package com.joblessops.joblessops.importing.api;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 public record ImportRequest(
-        List<ImportCompanyRequest> companies
+        @Valid List<ImportCompanyRequest> companies
 ) {}

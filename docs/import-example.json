@@ -1,0 +1,25 @@
+{
+  "companies": [
+    {
+      "name": "Example Company",
+      "website": "https://example.com",
+      "jobPostings": [
+        {
+          "title": "Java Developer",
+          "url": "https://example.com/jobs/java",
+          "description": "Java and Spring",
+          "jobApplications": [
+            {
+              "notes": "Applied through the company website",
+              "appliedAt": "2026-11-17",
+              "statusHistory": [
+                { "statusCode": "APPLIED", "changedAt": "2026-11-17T09:00:00" },
+                { "statusCode": "HR_SCREENING", "changedAt": "2026-11-18T14:30:00" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

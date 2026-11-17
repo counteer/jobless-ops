@@ -7,5 +7,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import java.util.UUID;
 
 @RepositoryRestResource(path = "application-statuses")
-interface ApplicationStatusRepository extends JpaRepository<ApplicationStatus,UUID> {
+public interface ApplicationStatusRepository extends JpaRepository<ApplicationStatus,UUID> {
+    java.util.Optional<ApplicationStatus> findByCode(String code);
 }
